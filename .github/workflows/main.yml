@@ -1,0 +1,35 @@
+name: .NET 8 CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          
+      - name: Restore dependencies
+        run: dotnet restore --locked-mode --packages packs Source/Lib/Ide/Host.Photino/Luthetus.Ide.Photino.csproj
+
+      - name: Build project
+        run: dotnet publish -c Release Source/Lib/Ide/Host.Photino/Luthetus.Ide.Photino.csproj
+
+      - name: compress
+        run: Compress-Archive . release.zip
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Luthetuside
+          path:  D:/a/Luthetus.Ide/Luthetus.Ide/release.zip
